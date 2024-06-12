@@ -1,0 +1,61 @@
+<%- include('templates/head') %>
+<body>
+    <%- include('templates/header') %>
+    <h1>Model Details</h1>
+    <p><%= model.nombre_modelo %></p>
+    <div class="td-img"><img src="../img/<%=model.nombre_modelo %>.webp" alt="<%=model.nombre_modelo %>"></div>
+    <p><%=model.nombre_modelo %></p>
+    <p><%=model.puertas %></p>
+    <p><%=model.personas %></p>
+    <p><%=model.maletas %></p>
+    <p><%=model.cambio %></p>
+    <p><%=model.tipo %></p>
+    <p id="precio"><%=model.precioDia %></p>
+
+    <form action="/reservar?id_modelo=<%= model.id_modelo %>" method="post">
+        
+        <input type="hidden" name="id_modelo" value="<%= model.id_cliente %>">
+        <label for="inicio">inicio</label>
+        <input type="date" name="inicio" id="inicio">
+        <label for="termino">termino</label>
+        <input type="date" name="termino" id="termino">
+        <div id="totalDays" style="display: none;"></div>
+        <div id="totalValue" style="display: none;"></div>
+
+        <div class="button">
+            <button type="submit">reservar</button>
+            <button type="reset">cancelar</button>
+        </div>
+    </form>
+    </body>
+    <script>
+        // Function to calculate the total days between two dates
+        function calculateTotalDays() {
+            const inicio = new Date(document.getElementById('inicio').value);
+            const termino = new Date(document.getElementById('termino').value);
+            const price = parseFloat(document.querySelector('#precio').textContent);
+            // Calculate the difference in milliseconds
+            const differenceInMs = termino - inicio;
+            
+            // Convert milliseconds to days
+            const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
+            
+            const totalValue = differenceInDays * price;
+            // Display the total days
+            const totalDaysDiv = document.getElementById('totalDays');
+            totalDaysDiv.textContent = `Total Days: ${differenceInDays}`;
+            totalDaysDiv.style.display = 'block'; // Show the div
+
+            const totalValueDiv = document.getElementById('totalValue');
+            totalValueDiv.textContent = `Total Value: $${totalValue}`;
+            totalValueDiv.style.display = 'block'; // Show the total value div
+            }
+            
+            // Event listener to calculate total days when the date values change
+        // Event listener to calculate total days when the date values change
+        document.getElementById('termino').addEventListener('change', calculateTotalDays);
+        
+    </script>
+</html>
+
+

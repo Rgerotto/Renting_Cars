@@ -1,0 +1,83 @@
+<%- include('templates/head') %>
+<body>
+    <%- include('templates/header') %>
+    <section>
+
+    
+    <form action="/insert" method="post">
+        <div>
+            <label for="tipo">tipo</label>
+            <input type="text" name="tipo" id="">
+        </div>
+        <div>
+            <label for="nombre">nombre</label>
+        <input type="text" name="nombre" id="nombre">
+        </div>
+        <div>
+            <label for="personas">personas</label>
+        <input type="number" name="personas" id="personas">
+        </div>
+        <div>
+            <label for="puertas">puertas</label>
+        <input type="number" name="puertas" id="puertas">
+        </div>
+        <div>
+            <label for="cambio">cambio</label>
+            <input type="text" name="cambio" id="">
+        </div>
+       <div>
+        <label for="maletas">maletas</label>
+        <input type="number" name="maletas" id="maletas">
+       </div>
+        <div>
+            <label for="precio">precio</label>
+        <input type="text" name="precio" id="precio">
+        </div>
+        <div>
+            <label for="unidades_totales">unidades_totales</label>
+        <input type="text" name="unidades_totales" id="unidades_totales">
+        </div>
+        <div>
+            <label for="unidades_alquiladas">unidades_alquiladas</label>
+        <input type="text" name="unidades_alquiladas" id="unidades_alquiladas">
+        </div>
+        <div class="btn">
+            <button type="submit">enviar</button>
+        <button type="reset">cancelar</button>
+        </div>
+    </form>
+</section>
+<section>
+    <table>
+        <tr class="tr-contianer-head">
+            <th>imagem</th>
+            <th>nombre</th>
+            <th>puertas</th>
+            <th>personas</th>
+            <th>maletas</th>
+            <th>cambio</th>
+            <th>tipo</th>
+            <th>precio</th>
+            <th></th>
+            <th></th>
+        </tr>
+        <% results.sort((a,b) => a.tipo.localeCompare(b.tipo)) %>
+        <% results.forEach(result => { %>
+        <tr class="tr-container-modelo">
+                <td class="td-img"><img src="../img/<%=result.nombre_modelo %>.webp" alt="<%=result.nombre_modelo %>"></td>
+                <td><%=result.nombre_modelo %></td>
+                <td><%=result.puertas %></td>
+                <td><%=result.personas %></td>
+                <td><%=result.maletas %></td>
+                <td><%=result.cambio %></td>
+                <td><%=result.tipo %></td>
+                <td><%=result.precioDia %></td>
+                <td><a href="#">deletar</a></td>
+                <td><button type="reset">deletar</button></td>
+                </tr>
+            <% }); %>
+    </table>
+</section>
+
+</body>
+</html>

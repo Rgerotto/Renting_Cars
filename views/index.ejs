@@ -1,0 +1,42 @@
+<%- include('templates/head') %>
+<body>
+    <%- include('templates/header') %>
+    <main>
+        <section class="not login">
+            <h1>Welcome, <%= h2 %>!</h1>
+        </section>
+        <section>
+            <table>
+                <tr class="tr-contianer-head">
+                    <th>imagem</th>
+                    <th>nombre</th>
+                    <th>puertas</th>
+                    <th>personas</th>
+                    <th>maletas</th>
+                    <th>cambio</th>
+                    <th>tipo</th>
+                    <th>precio</th>
+                    <th></th>
+                </tr>
+                <% results.sort((a,b) => a.tipo.localeCompare(b.tipo)) %>
+                <% results.forEach(result => { %>
+                <tr class="tr-container-modelo">
+                        <td class="td-img"><img src="../img/<%=result.nombre_modelo %>.webp" alt="<%=result.nombre_modelo %>"></td>
+                        <td><%=result.nombre_modelo %></td>
+                        <td><%=result.puertas %></td>
+                        <td><%=result.personas %></td>
+                        <td><%=result.maletas %></td>
+                        <td><%=result.cambio %></td>
+                        <td><%=result.tipo %></td>
+                        <td><%=result.precioDia %></td>
+                        <td><a href="/alquillar?id_modelo=<%=result.id_modelo%>">reservar</a></td>
+                        </tr>
+                    <% }); %>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <p>Copyright &copy; 2024</p>
+    </footer>
+</body>
+</html>

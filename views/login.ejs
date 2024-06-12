@@ -1,0 +1,27 @@
+<%- include('templates/head') %>
+<body>
+    <%- include('templates/header') %>
+    <section>
+        <form action="/login" method="post">
+            <div>
+                <label for="email">email</label>
+            <input type="email" name="email" id="email">
+            </div>
+            <div>
+                <label for="password">password</label>
+            <input type="password" name="password" id="password">
+            </div>
+
+            <div>
+                <button type="submit">entrar</button>
+            <button type="reset">limpar</button>
+            </div>
+        </form>
+    </section>
+
+
+
+
+    <%-include('templates/footer') %>
+</body>
+</html>
