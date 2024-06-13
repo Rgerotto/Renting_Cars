@@ -9,7 +9,7 @@ const session = require("express-session");
 const router = express.Router();
 
 const connection = mysql.createConnection({
-  host: "process.env.HOST",
+  host: "localhost",
   port: "3309",
   user: "rafaelcoelho",
   //password: "123456",
@@ -132,6 +132,7 @@ router.post("/login", (req, res) => {
 });
 
 router.get("/alquillar", (req, res) => {
+  const h2 = req.session.userName;
   const id_modelo = req.query.id_modelo; // Get the id_modelo from the query parameters
   console.log("id_cliente:", req.session.userId);
   const query = "SELECT * FROM modelos WHERE id_modelo = ?";
@@ -148,9 +149,10 @@ router.get("/alquillar", (req, res) => {
     }
 
     const model = results[0];
-    res.render("alquillar", { model, tipos }); // Assuming you are rendering a template named "alquillar" and passing the model data to it
+    res.render("alquillar", { h2: h2, model, tipos }); // Assuming you are rendering a template named "alquillar" and passing the model data to it
   });
 });
+
 
 router.post("/reservar", (req, res) => {
   const id_cliente = req.session.userId;
@@ -159,10 +161,10 @@ router.post("/reservar", (req, res) => {
 
   const inicio = new Date(req.body.inicio);
   const termino = new Date(req.body.termino);
+  
   // Convert the dates to YYYY-MM-DD format
   const formattedInicio = formatDate(inicio);
   const formattedTermino = formatDate(termino);
-  //console.log("date :", formattedInicio, formattedTermino)
 
   // Function to format date to YYYY-MM-DD
   function formatDate(date) {
@@ -171,39 +173,59 @@ router.post("/reservar", (req, res) => {
     const day = String(date.getDate()).padStart(2, "0"); // Adding leading zero if needed
     return `${year}-${month}-${day}`;
   }
+
   function generateFacturacion() {
     return Math.floor(1000 + Math.random() * 9000);
   }
   const facturacion = generateFacturacion();
   console.log("facturacion:", facturacion);
-  // Calculate the difference in milliseconds
-  const differenceInMs = termino.getTime() - inicio.getTime();
-  // Convert milliseconds to days
-  const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
-  //console.log("date: ", differenceInDays)
-  // Log the result
-  console.log("Number of days between the dates:", differenceInDays);
 
-  // Assuming you have a database connection named 'connection'
-  const insertReservationQuery = `INSERT INTO alquileres (id_modelo, id_cliente, fecha_recogida, fecha_entrega, facturacion) 
-                                  VALUES (?, ?, ?, ?, ?)`;
+  // Check if the car is available for the desired period
+  const checkAvailabilityQuery = `
+    SELECT * FROM alquileres 
+    WHERE id_modelo = ? 
+    AND (fecha_recogida BETWEEN ? AND ? OR fecha_entrega BETWEEN ? AND ? OR ? BETWEEN fecha_recogida AND fecha_entrega)
+  `;
 
-  // Execute the query
-  connection.query(
-    insertReservationQuery,
-    [id_modelo, id_cliente, formattedInicio, formattedTermino, facturacion],
-    (error, results) => {
-      if (error) {
-        console.error("Error inserting reservation:", error);
-        return res.status(500).send("Error inserting reservation");
-      }
-      console.log("Reservation inserted:", results);
-      res.send(
-        `Reservation inserted. Number of days between the dates: ${differenceInDays}`
-      );
+  connection.query(checkAvailabilityQuery, [id_modelo, formattedInicio, formattedTermino, formattedInicio, formattedTermino, formattedInicio], (error, results) => {
+    if (error) {
+      console.error("Error checking availability:", error);
+      return res.status(500).send("Error checking availability");
     }
-  );
+
+    if (results.length > 0) {
+      // The car is already rented during the specified period
+      return res.status(400).send("The car is not available for the selected dates.");
+    }
+
+    // Calculate the difference in milliseconds
+    const differenceInMs = termino.getTime() - inicio.getTime();
+    // Convert milliseconds to days
+    const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
+    // Log the result
+    console.log("Number of days between the dates:", differenceInDays);
+
+    // If the car is available, insert the new reservation
+    const insertReservationQuery = `
+      INSERT INTO alquileres (id_modelo, id_cliente, fecha_recogida, fecha_entrega, facturacion) 
+      VALUES (?, ?, ?, ?, ?)
+    `;
+
+    connection.query(
+      insertReservationQuery,
+      [id_modelo, id_cliente, formattedInicio, formattedTermino, facturacion],
+      (error, results) => {
+        if (error) {
+          console.error("Error inserting reservation:", error);
+          return res.status(500).send("Error inserting reservation");
+        }
+        console.log("Reservation inserted:", results);
+        res.send(`Reservation inserted. Number of days between the dates: ${differenceInDays}`);
+      }
+    );
+  });
 });
+
 
 router.get("/register", (req, res) => {
   res.render("register", { tipos });
@@ -227,6 +249,16 @@ router.post("/register", (req, res) => {
     console.error("Error hashing password:", err);
     res.status(500).send("Error registering new user");
   }
+});
+
+router.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).send("Error logging out");
+    }
+    res.redirect("/login");
+  });
 });
 
 module.exports = { router, tipos };

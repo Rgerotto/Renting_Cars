@@ -1,6 +1,7 @@
 <%- include('templates/head') %>
 <body>
     <%- include('templates/header') %>
+    <h1><%= h2 %></h1>
     <h1>Model Details</h1>
     <p><%= model.nombre_modelo %></p>
     <div class="td-img"><img src="../img/<%=model.nombre_modelo %>.webp" alt="<%=model.nombre_modelo %>"></div>
@@ -27,6 +28,7 @@
             <button type="reset">cancelar</button>
         </div>
     </form>
+    <%-include('templates/footer') %>
     </body>
     <script>
         // Function to calculate the total days between two dates

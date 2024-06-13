@@ -3,7 +3,7 @@
     <%- include('templates/header') %>
     <main>
         <section class="not login">
-            <h1>Welcome, <%= h2 %>!</h1>
+            <h1><%= h2 %></h1>
         </section>
         <section>
             <table>
@@ -35,8 +35,6 @@
             </table>
         </section>
     </main>
-    <footer>
-        <p>Copyright &copy; 2024</p>
-    </footer>
+    <%-include('templates/footer') %>
 </body>
 </html>
