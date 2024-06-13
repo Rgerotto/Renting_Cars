@@ -1,7 +1,7 @@
 <%- include('templates/head') %>
 <body>
     <%- include('templates/header') %>
-    <section>
+    <section class="admin">
 
     
     <form action="/insert" method="post">
@@ -57,6 +57,8 @@
             <th>maletas</th>
             <th>cambio</th>
             <th>tipo</th>
+            <th>unidades_totales</th>
+            <th>unidades_alquiladas</th>
             <th>precio</th>
             <th></th>
             <th></th>
@@ -71,9 +73,10 @@
                 <td><%=result.maletas %></td>
                 <td><%=result.cambio %></td>
                 <td><%=result.tipo %></td>
+                <td><%=result.unidades_totales %></td>
+                <td><%=result.unidades_alquiladas %></td>
                 <td><%=result.precioDia %></td>
-                <td><a href="#">deletar</a></td>
-                <td><button type="reset">deletar</button></td>
+                <td><a href="delete/<%= result.id_modelo %>">deletar</a></td>
                 </tr>
             <% }); %>
     </table>

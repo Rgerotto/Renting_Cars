@@ -31,7 +31,7 @@ router.get("/", (req, res) => {
   const selectAll = `SELECT * FROM modelos`;
   connection.query(selectAll, (error, results) => {
     if (error) {
-      console.log("este", error);
+      console.log(error);
       res.status(503).render("error_servidor");
     } else {
       res.render("index", { h2: h2, results, tipos });
@@ -55,39 +55,8 @@ router.get(`/type/:tipo`, (req, res) => {
     }
   });
 });
-router.get("/admin", (req, res) => {
-  const selectAllAdmin = req.params;
-  const displayAll = "SELECT * FROM modelos";
-  connection.query(displayAll, (error, results) => {
-    if (error) {
-      console.log("getAdmin:", error);
-    }
-    res.render("admin", { results, tipos });
-  });
-});
 
-router.post("/insert", (req, res) => {
-  const {
-    nombre,
-    puertas,
-    personas,
-    maletas,
-    cambio,
-    tipo,
-    precio,
-    unidades_totales,
-    unidades_alquiladas,
-  } = req.body;
-  const insertNew = `INSERT INTO modelos(nombre_modelo, puertas, personas, maletas, cambio, tipo, precioDia, unidades_totales, unidades_alquiladas)
-    VALUES('${nombre}', '${puertas}', '${personas}', '${maletas}', '${cambio}', '${tipo}', '${precio}', '${unidades_totales}', '${unidades_alquiladas}')`;
-  connection.query(insertNew, (error, results) => {
-    if (error) {
-      console.log("postAdmin: ", error);
-    } else {
-      res.redirect("/admin", { results, tipos });
-    }
-  });
-});
+
 
 router.get("/login", (req, res) => {
   //console.log(username())
@@ -186,30 +155,24 @@ router.post("/reservar", (req, res) => {
     WHERE id_modelo = ? 
     AND (fecha_recogida BETWEEN ? AND ? OR fecha_entrega BETWEEN ? AND ? OR ? BETWEEN fecha_recogida AND fecha_entrega)
   `;
-
   connection.query(checkAvailabilityQuery, [id_modelo, formattedInicio, formattedTermino, formattedInicio, formattedTermino, formattedInicio], (error, results) => {
     if (error) {
       console.error("Error checking availability:", error);
       return res.status(500).send("Error checking availability");
     }
-
     if (results.length > 0) {
       // The car is already rented during the specified period
       return res.status(400).send("The car is not available for the selected dates.");
     }
-
     // Calculate the difference in milliseconds
     const differenceInMs = termino.getTime() - inicio.getTime();
     // Convert milliseconds to days
     const differenceInDays = Math.ceil(differenceInMs / (1000 * 60 * 60 * 24));
     // Log the result
     console.log("Number of days between the dates:", differenceInDays);
-
     // If the car is available, insert the new reservation
-    const insertReservationQuery = `
-      INSERT INTO alquileres (id_modelo, id_cliente, fecha_recogida, fecha_entrega, facturacion) 
-      VALUES (?, ?, ?, ?, ?)
-    `;
+    const insertReservationQuery = `INSERT INTO alquileres (id_modelo, id_cliente, fecha_recogida, fecha_entrega, facturacion) 
+      VALUES (?, ?, ?, ?, ?)`;
 
     connection.query(
       insertReservationQuery,
@@ -261,4 +224,68 @@ router.get("/logout", (req, res) => {
   });
 });
 
+
+
+/* ========ROUTER PRIVADA========= */
+
+router.get("/admin", (req, res) => {
+  //const selectAllAdmin = req.params;
+  const displayAll = "SELECT * FROM modelos";
+  connection.query(displayAll, (error, results) => {
+    if (error) {
+      console.log("getAdmin:", error);
+      return res.status(500).send('Error fetching items');
+    }
+    res.render("admin", { results, tipos });
+  });
+});
+
+router.post("/insert", (req, res) => {
+  const {
+    nombre,
+    puertas,
+    personas,
+    maletas,
+    cambio,
+    tipo,
+    precio,
+    unidades_totales,
+    unidades_alquiladas,
+  } = req.body;
+  const insertNew = `INSERT INTO modelos(nombre_modelo, puertas, personas, maletas, cambio, tipo, precioDia, unidades_totales, unidades_alquiladas)
+    VALUES('${nombre}', '${puertas}', '${personas}', '${maletas}', '${cambio}', '${tipo}', '${precio}', '${unidades_totales}', '${unidades_alquiladas}')`;
+  connection.query(insertNew, (error, results) => {
+    if (error) {
+      console.log("postAdmin: ", error);
+    } else {
+      
+      res.redirect("/admin");
+    }
+  });
+});
+
+router.get('/delete/:id_modelo', (req, res) => {
+const {id_modelo} = req.params;
+const deleteItem = `DELETE FROM modelos WHERE id_modelo = ${id_modelo}`;
+  connection.query(deleteItem, (error, results) => {
+    if(error) throw error;
+    res.redirect("/admin")
+  })
+})
+/*
+router.post('/delete/:id_modelo', (req, res) => {
+  console.log("post", req.body)
+   const { id_modelo } = req.params;
+console.log("req", req.params)
+  const deleteItem = `DELETE FROM modelos WHERE id_modelo = ${id_modelo}`;
+  connection.query(deleteItem, (error, results) => {
+    if (error) {
+      console.error('Error deleting item:', error);
+      return res.status(500).send('Error deleting item');
+    }
+    console.log('Item deleted:', results);
+    res.redirect("/admin"); // Render the admin page after deletion
+  }); 
+});
+*/
 module.exports = { router, tipos };
